@@ -1,0 +1,25 @@
+/.aws
+/vue.js
+/bff/app/target
+/bff/docker/.aws
+/docker/.env
+/docker/mysql
+/docker/bff/.aws
+/postgres
+/mysql
+/tls
+/django
+/flask
+/react
+/express
+/nginx
+/frontend/frontend.dockerfile
+/queue
+/dynamodb
+/static
+# /backend-app
+/backend-cron-job
+/backend-management
+/backend-queue-worker
+/kubernetes/secrets
+/docker-compose

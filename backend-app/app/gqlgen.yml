@@ -1,0 +1,23 @@
+# GraphQLスキーマファイルの場所
+schema:
+  - ./*.graphql
+
+# スキーマGo実装ファイルの生成場所
+exec:
+  filename: src/graphql/generated/generated.go
+  package: generated
+
+# モデル構造体ファイルの生成場所
+model:
+  filename: src/graphql/model/models_gen.go
+  package: model
+
+# resolver(GraphQL版controller的なもの)ファイルの生成場所
+resolver:
+  layout: follow-schema
+  dir: src/graphql/resolver
+  package: resolver
+
+# # 不足したスキーマ構造体を自動生成する場所
+autobind:
+  - 'github.com/wataru-morioka/webauthn-project/backend-app/app/tmp-gqlgen/graphql/model'
