@@ -67,6 +67,6 @@ async fn management_oauth2_callback(req: HttpRequest, query: web::Query<Callback
     }
 
     HttpResponse::TemporaryRedirect()
-    .header(header::LOCATION, format!("{}/home", ENV.api_domain))
+    .header(header::LOCATION, format!("{}/home", ENV.frontend_endpoint))
     .finish()
 }

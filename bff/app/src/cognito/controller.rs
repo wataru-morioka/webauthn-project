@@ -66,7 +66,7 @@ pub async fn oauth2_callback(req: HttpRequest, query: web::Query<CallbackRequest
     }
 
     HttpResponse::TemporaryRedirect()
-    .header(header::LOCATION, format!("{}/home", ENV.api_domain))
+    .header(header::LOCATION, format!("{}/home", ENV.frontend_endpoint))
     .finish()
 }
 

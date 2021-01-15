@@ -16,8 +16,8 @@ pub struct Env {
     pub keycloak_clientsecret: String,
     #[envconfig(from = "RUST_LOG")]
     pub rust_log: String,
-    #[envconfig(from = "API_DOMAIN")]
-    pub api_domain: String,
+    #[envconfig(from = "FRONTEND_ENDPOINT")]
+    pub frontend_endpoint: String,
     #[envconfig(from = "COGNITO_AUTHORIZATION_ENDPOINT")]
     pub cognito_authorization_endpoint: String,
     #[envconfig(from = "COGNITO_CALLBACK_URI")]

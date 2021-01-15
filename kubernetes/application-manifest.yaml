@@ -323,7 +323,7 @@ spec:
         env:
         - name: RUST_LOG
           value: info
-        - name: API_DOMAIN
+        - name: FRONTEND_ENDPOINT
           value: http://localhost:8080
         - name: COGNITO_AUTHORIZATION_ENDPOINT
           value: https://webauthn-app.auth.ap-northeast-1.amazoncognito.com/oauth2/authorize
