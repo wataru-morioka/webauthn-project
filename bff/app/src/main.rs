@@ -17,7 +17,6 @@ async fn main() -> std::io::Result<()> {
     })
     // .server_hostname("webauthn.api".to_string())
     .bind("0.0.0.0:8080")?;
-
     info!("server start!");
 
     server.run().await
