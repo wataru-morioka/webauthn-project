@@ -58,9 +58,7 @@ async fn management_oauth2_callback(req: HttpRequest, query: web::Query<Callback
     };
 
     info!("get access_token!!: {}", token_res.access_token);
-    session.access_token = Some(token_res.access_token);
-    session.refresh_token = Some(token_res.refresh_token);
-    session.expires_in = Some(token_res.expires_in);
+    KeycloakService::set_token_info(&mut session, token_res);
 
     if let Err(()) = DynamoDbRepository::put_session(&session, Const::KEYCLOAK_SESSION_MANAGE).await {
         return HttpResponse::InternalServerError().finish();

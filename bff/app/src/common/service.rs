@@ -32,12 +32,15 @@ impl CommonInterface for CommonService {
         let code_challenge: String = util::generate_code_challenge(&code_verifier);
         info!("generate code_verifier: {}", code_verifier);
         info!("generate code_challenge: {}", code_challenge);
+
+        let now: u64 = util::get_current_unix_timestamp();
     
         let session = SessionInfo::new(
             cookie.value().to_string(),
             state,
             code_verifier,
-            util::get_current_unix_timestamp(),
+            now,
+            now + 60 * 60,
         );
         if let Err(()) = DynamoDbRepository::put_session(&session, table_name).await {
             return Err(());

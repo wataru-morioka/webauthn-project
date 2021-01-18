@@ -332,11 +332,11 @@ spec:
         - name: COGNITO_TOKEN_ENDPOINT
           value: https://webauthn-app.auth.ap-northeast-1.amazoncognito.com/oauth2/token
         - name: KEYCLOAK_AUTHORIZATION_ENDPOINT
-          value: http://localhost:30100/auth/realms/webauthn-app/protocol/openid-connect/auth
+          value: https://auth.webauthn-project.work/auth/realms/webauthn-app/protocol/openid-connect/auth
         - name: KEYCLOAK_CALLBACK_URI
           value: http://localhost:8000/management/oauth2/callback
         - name: KEYCLOAK_TOKEN_ENDPOINT
-          value: http://keycloak-service:8100/auth/realms/webauthn-app/protocol/openid-connect/token
+          value: https://auth.webauthn-project.work/auth/realms/webauthn-app/protocol/openid-connect/token
         - name: KEYCLOAK_CLIENTID
           valueFrom:
             secretKeyRef:
