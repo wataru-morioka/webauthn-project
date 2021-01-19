@@ -11,7 +11,6 @@ use crate::common::model::CallbackRequestBody;
 
 #[get("/management/login")]
 async fn management_login(req: HttpRequest) -> impl Responder {
-    // TODO logger
     let (cookie, session, code_challenge) = match CommonService::generate_session(
         req, 
         &Const::KEYCLOAK_SESSION_MANAGE

@@ -38,6 +38,21 @@ provisioner:  kubernetes.io/no-provisioner
 apiVersion: v1
 kind: Service
 metadata:
+  name: postgres-service
+spec:
+  type: NodePort
+  ports:
+    - name: tcp
+      port: 5432
+      targetPort: 5432
+      nodePort: 30432
+  selector:
+    app: postgres
+
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: mysql-service
 spec:
   type: NodePort
@@ -133,6 +148,23 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
+  name: postgres-pv-volume
+  labels:
+    type: postgres
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 3Gi
+  accessModes: 
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /Users/moriokawataru/Docker/webauthn-project/postgres
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
   name: mysql-pv-volume
   labels:
     type: mysql
@@ -198,6 +230,22 @@ spec:
     path: /Users/moriokawataru/Docker/webauthn-project/keycloak
 
 #region pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pv-claim
+spec:
+  selector:
+    matchLabels:
+      type: postgres
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -304,22 +352,7 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
-        # command: ["/bin/bash", "-c", "nginx && /etc/init.d/postfix restart && echo ${TRIPWIRE} | tripwire --init && suricata -c /etc/suricata/suricata.yaml -i eth0"]
         command: ["tail", "-f", "/dev/null"]
-        # - "/bin/bash"
-        # - "-c"
-        # - >
-        #   sleep 30;
-        #   nginx;
-        #   etc/init.d/postfix restart;
-        #   echo ${TRIPWIRE} | tripwire --init;
-        #   suricata -c /etc/suricata/suricata.yaml -i eth0;
-        # livenessProbe:
-        #   exec:
-        #     command: ["sh", "/usr/local/init-check/authen-service-check.sh"]
-        #   # initialDelaySeconds: 20
-        #   failureThreshold: 3
-        #   periodSeconds: 5
         env:
         - name: RUST_LOG
           value: info
@@ -332,11 +365,11 @@ spec:
         - name: COGNITO_TOKEN_ENDPOINT
           value: https://webauthn-app.auth.ap-northeast-1.amazoncognito.com/oauth2/token
         - name: KEYCLOAK_AUTHORIZATION_ENDPOINT
-          value: https://auth.webauthn-project.work/auth/realms/webauthn-app/protocol/openid-connect/auth
+          value: http://localhost:30100/auth/realms/webauthn-app/protocol/openid-connect/auth
         - name: KEYCLOAK_CALLBACK_URI
           value: http://localhost:8000/management/oauth2/callback
         - name: KEYCLOAK_TOKEN_ENDPOINT
-          value: https://auth.webauthn-project.work/auth/realms/webauthn-app/protocol/openid-connect/token
+          value: http://keycloak-service:8100/auth/realms/webauthn-app/protocol/openid-connect/token
         - name: KEYCLOAK_CLIENTID
           valueFrom:
             secretKeyRef:
@@ -400,7 +433,6 @@ spec:
         persistentVolumeClaim:
           claimName: backend-app-pv-claim
 
-#region go
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -486,6 +518,60 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13.1
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TZ
+          value: Asia/Tokyo
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        - name: PGUSER
+        #   value: wataru
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_DB
+          value: webauthn
+        - name: POSTGRES_USER
+        #   value: wataru
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+        #   value: wataru
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        ports:
+         - containerPort: 5432
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgres-persistent-storage
+      volumes:
+      - name: postgres-persistent-storage
+        persistentVolumeClaim:
+          claimName: postgres-pv-claim
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: mysql
 spec:
   # serviceName: mysql
@@ -522,7 +608,6 @@ spec:
             secretKeyRef:
               name: mysql-secret
               key: MYSQL_PASSWORD
-        #command: [ "/sbin/rsyslogd", "-n" ]
         ports:
          - containerPort: 3306
         # readinessProbe:

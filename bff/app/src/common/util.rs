@@ -31,7 +31,7 @@ pub fn generate_code_challenge(verifier: &str) -> String {
 pub fn generate_cookie() -> Cookie<'static> {
     Cookie::build(Const::AUTH_COOKIE, generate_base64_url())
     // .domain("www.rust-lang.org")
-    // .path("/")
+    .path("/")
     .max_age(Duration::seconds(Const::COOKIE_EXPIRES_IN))
     .secure(false)
     .http_only(true)

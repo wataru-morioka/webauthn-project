@@ -15,23 +15,23 @@ spec:
         - "*"
         # - istio
         # - webauthn.api
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: bookinfo
-spec:
-  hosts:
-    # - "*"
-    - istio
-  gateways:
-    - bookinfo-gateway
-  http:
-    - route:
-        - destination:
-            host: productpage.default.svc.cluster.local
-            port:
-              number: 9080
+# ---
+# apiVersion: networking.istio.io/v1alpha3
+# kind: VirtualService
+# metadata:
+#   name: bookinfo
+# spec:
+#   hosts:
+#     # - "*"
+#     - istio
+#   gateways:
+#     - bookinfo-gateway
+#   http:
+#     - route:
+#         - destination:
+#             host: productpage.default.svc.cluster.local
+#             port:
+#               number: 9080
 
 ---
 apiVersion: networking.istio.io/v1alpha3
