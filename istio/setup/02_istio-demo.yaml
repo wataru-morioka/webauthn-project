@@ -16519,6 +16519,11 @@ spec:
       port: 8000
       targetPort: 80
     -
+      name: api
+      nodePort: 31381
+      port: 8010
+      targetPort: 81
+    -
       name: https
       nodePort: 31390
       port: 4430
@@ -17121,6 +17126,7 @@ spec:
           ports:
             - containerPort: 15020
             - containerPort: 80
+            - containerPort: 81
             - containerPort: 443
             - containerPort: 31400
             - containerPort: 15029

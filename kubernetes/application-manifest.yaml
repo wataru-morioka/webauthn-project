@@ -110,10 +110,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: bff-service
+  name: bff-auth-service
   labels:
-    app: bff
-    service: bff-service
+    app: bff-auth
+    service: bff-auth-service
 spec:
   type: ClusterIP
   ports:
@@ -121,7 +121,24 @@ spec:
       port: 8080 
       targetPort: 8080
   selector:
-    app: bff
+    app: bff-auth
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bff-reverse-proxy-service
+  labels:
+    app: bff-reverse-proxy
+    service: bff-reverse-proxy-service
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 9080 
+      targetPort: 8080
+  selector:
+    app: bff-reverse-proxy
 
 # ---
 # apiVersion: v1
@@ -193,7 +210,24 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /Users/moriokawataru/Docker/webauthn-project/bff/app
+    path: /Users/moriokawataru/Docker/webauthn-project/bff-auth/app
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: bff-reverse-proxy-pv-volume
+  labels:
+    type: bff-reverse-proxy
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Mi
+  accessModes: 
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /Users/moriokawataru/Docker/webauthn-project/bff-reverse-proxy/app
 
 ---
 apiVersion: v1
@@ -282,6 +316,22 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  name: bff-reverse-proxy-pv-claim
+spec:
+  selector:
+    matchLabels:
+      type: bff-reverse-proxy
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
   name: backend-app-pv-claim
 spec:
   selector:
@@ -330,24 +380,24 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bff
+  name: bff-auth
   labels:
-    app: bff
+    app: bff-auth
     version: v1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: bff
+      app: bff-auth
       version: v1
   template:
     metadata:
       labels:
-        app: bff
+        app: bff-auth
         version: v1
     spec:
       containers:
-      - name: bff
+      - name: bff-auth
         image: webauthn-project/bff
         imagePullPolicy: IfNotPresent
         ports:
@@ -397,6 +447,46 @@ spec:
       - name: bff-persistent-storage
         persistentVolumeClaim:
           claimName: bff-pv-claim
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bff-reverse-proxy
+  labels:
+    app: bff-reverse-proxy
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bff-reverse-proxy
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: bff-reverse-proxy
+        version: v1
+    spec:
+      containers:
+      - name: bff-reverse-proxy
+        image: webauthn-project/bff
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        command: ["tail", "-f", "/dev/null"]
+        env:
+        - name: RUST_LOG
+          value: info
+        - name: API_ENDPOINT
+          value: http://backend-app-service:8080
+        volumeMounts:
+        - mountPath: /root/app
+          name: bff-reverse-proxy-persistent-storage 
+      volumes:
+      - name: bff-reverse-proxy-persistent-storage
+        persistentVolumeClaim:
+          claimName: bff-reverse-proxy-pv-claim
 
 ---
 apiVersion: apps/v1

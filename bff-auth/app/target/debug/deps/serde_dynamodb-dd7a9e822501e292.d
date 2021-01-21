@@ -1,0 +1,10 @@
+/Users/moriokawataru/Docker/webauthn-project/bff/app/target/debug/deps/serde_dynamodb-dd7a9e822501e292.rmeta: /Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/lib.rs /Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/error.rs /Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/common/mod.rs /Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/dynamodb/mod.rs /Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/dynamodb/de.rs /Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/dynamodb/ser.rs
+
+/Users/moriokawataru/Docker/webauthn-project/bff/app/target/debug/deps/serde_dynamodb-dd7a9e822501e292.d: /Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/lib.rs /Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/error.rs /Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/common/mod.rs /Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/dynamodb/mod.rs /Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/dynamodb/de.rs /Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/dynamodb/ser.rs
+
+/Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/lib.rs:
+/Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/error.rs:
+/Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/common/mod.rs:
+/Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/dynamodb/mod.rs:
+/Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/dynamodb/de.rs:
+/Users/moriokawataru/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_dynamodb-0.6.0/src/dynamodb/ser.rs:

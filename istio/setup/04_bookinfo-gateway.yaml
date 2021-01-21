@@ -15,6 +15,12 @@ spec:
         - "*"
         # - istio
         # - webauthn.api
+    - port:
+        number: 81
+        name: api
+        protocol: HTTP
+      hosts:
+        - "*"
 # ---
 # apiVersion: networking.istio.io/v1alpha3
 # kind: VirtualService
@@ -49,7 +55,7 @@ spec:
       - port: 80
       route:
         - destination:
-            host: bff-service.default.svc.cluster.local
+            host: bff-auth-service.default.svc.cluster.local
             port:
               number: 8080
       corsPolicy:
@@ -64,3 +70,19 @@ spec:
         # allowHeaders:
         # - X-Foo-Bar
         # maxAge: "24h"
+    - match:
+      - port: 81
+      route:
+        - destination:
+            host: bff-reverse-proxy-service.default.svc.cluster.local
+            port:
+              number: 9080
+      corsPolicy:
+        allowOrigin:
+        - '*'
+        allowCredentials: false
+        allowMethods: 
+        - POST
+        - GET
+        - PUT
+        - DELETE
