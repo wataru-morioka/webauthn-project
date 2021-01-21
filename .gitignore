@@ -1,7 +1,8 @@
 /.aws
 /vue.js
-/bff/app/target
-/bff/docker/.aws
+/bff-auth/app/target
+/bff-auth/docker/.aws
+/bff-reverse-proxy/app/target
 /docker/.env
 /docker/mysql
 /docker/bff/.aws
