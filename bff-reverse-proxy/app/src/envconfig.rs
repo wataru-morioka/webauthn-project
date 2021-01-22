@@ -2,7 +2,7 @@ use envconfig::Envconfig;
 use once_cell::sync::Lazy;
 use env_logger;
 use std::io::Write;
-use crate::common::util;
+use crate::util;
 
 #[derive(Envconfig, Debug)]
 pub struct Env {

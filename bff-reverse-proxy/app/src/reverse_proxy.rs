@@ -93,7 +93,7 @@ fn create_proxied_request<B>(
     *request.headers_mut() = remove_hop_headers(request.headers());
     *request.uri_mut() = forward_uri(forward_url, &request);
 
-    println!("proxy to: {}", forward_url);
+    info!("proxy to: {}", forward_url);
 
     let x_forwarded_for_header_name = "x-forwarded-for";
 

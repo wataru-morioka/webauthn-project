@@ -68,11 +68,3 @@ pub async fn oauth2_callback(req: HttpRequest, query: web::Query<CallbackRequest
     .finish()
 }
 
-   // TODO 
-    // apiアクセス時
-    // クッキーに紐づくセッションの存在確認（DynamoDB）
-    // なければ、再ログイン(ブラウザで判断)
-    // アクセストークンの有効期限確認
-    // 有効期限が切れていた場合、リフレッシュトークンにより新規アクセストークイン発行し、dynamoDBを更新
-    // リフレッシュトークンが無効な場合、再ログイン(ブラウザで判断)
-
