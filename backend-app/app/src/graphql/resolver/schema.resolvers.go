@@ -20,7 +20,18 @@ func (r *mutationResolver) UpdatePost(ctx context.Context, id string, votes *int
 }
 
 func (r *queryResolver) AllPosts(ctx context.Context, orderBy *model.OrderBy, first int, skip int) ([]*model.Post, error) {
-	panic(fmt.Errorf("not implemented"))
+	// panic(fmt.Errorf("not implemented"))
+	var result []*model.Post
+	result = append(result, 
+		&model.Post{
+			ID: "test",
+			Title: "title-test",
+			Votes: 1,
+			URL:  "testuri",
+			CreatedAt: "2020-10-22",
+		},
+	)
+	return result, nil
 }
 
 func (r *queryResolver) AllPostsMeta(ctx context.Context) (*model.PostsMeta, error) {

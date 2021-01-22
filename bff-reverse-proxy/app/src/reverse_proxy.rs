@@ -93,6 +93,8 @@ fn create_proxied_request<B>(
     *request.headers_mut() = remove_hop_headers(request.headers());
     *request.uri_mut() = forward_uri(forward_url, &request);
 
+    println!("proxy to: {}", forward_url);
+
     let x_forwarded_for_header_name = "x-forwarded-for";
 
     // Add forwarding information in the headers
@@ -115,14 +117,9 @@ pub async fn call(
     forward_uri: &str,
     request: Request<Body>,
 ) -> Result<Response<Body>> {
-    info!("create request!");
     let proxied_request = create_proxied_request(client_ip, &forward_uri, request).unwrap();
-
     let client = Client::new();
-    info!("start proxy!");
     let response = client.request(proxied_request).await.unwrap();
-    info!("create response!");
     let proxied_response = create_proxied_response(response);
-    info!("get response!");
     Ok(proxied_response)
 }

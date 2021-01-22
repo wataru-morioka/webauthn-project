@@ -67,6 +67,7 @@ spec:
         - GET
         - PUT
         - DELETE
+        - OPTIONS
         # allowHeaders:
         # - X-Foo-Bar
         # maxAge: "24h"
@@ -81,8 +82,12 @@ spec:
         allowOrigin:
         - '*'
         allowCredentials: false
+        allowHeaders:
+          - authorization
+          - content-type
         allowMethods: 
         - POST
         - GET
         - PUT
         - DELETE
+        - OPTIONS

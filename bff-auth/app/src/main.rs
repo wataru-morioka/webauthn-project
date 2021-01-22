@@ -3,7 +3,6 @@ use log::info;
 use app::cognito;
 use app::keycloak;
 use app::config::envconfig;
-use app::reverse_proxy;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
