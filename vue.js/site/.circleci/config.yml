@@ -1,0 +1,63 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2.1
+
+executors:
+  default:
+    working_directory: ~/tenth-project
+    docker:
+      - image: circleci/node:12.7.0
+        environment:
+          TZ: Asia/Tokyo
+
+commands:
+  restore_npm:
+    steps:
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+  save_npm:
+    steps:
+      - save_cache:
+          paths:
+            - ~/tenth-project/node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+jobs:
+  build:
+    executor: default
+    steps:
+      - checkout
+      - restore_npm
+      - run: ls -l ~/tenth-project
+      - run: npm install
+      - run: git config user.name $GITHUB_NAME
+      - run: git config user.email $GITHUB_EMAIL
+      - run: npm run all
+      - save_npm
+  test:
+    executor: default
+    steps:
+      - checkout
+      - restore_npm
+      - run: echo "test"
+      - save_npm
+
+workflows:
+  pull-request:
+    jobs:
+      - build:
+          filters:
+              branches:
+                only: develop
+      # - test:
+      #     requires:
+      #       - build
+      #     filters:
+      #         branches:
+      #           only: develop

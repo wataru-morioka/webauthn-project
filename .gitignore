@@ -24,7 +24,6 @@
 /kubernetes/secrets
 /docker-compose
 /cloudformation.yaml
-/vue.js/node_modules/
-/vue.js/docs/
-/vue.js/src/assets/
-/vue.js/src/firebase-config.ts
+/vue.js/site/node_modules/
+/vue.js/site/src/assets/
+/vue.js/site/src/firebase-config.ts
