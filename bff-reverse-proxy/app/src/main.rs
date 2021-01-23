@@ -7,6 +7,7 @@ use hyper::service::{service_fn, make_service_fn};
 use app::reverse_proxy;
 use app::envconfig;
 use app::envconfig::ENV;
+use app::validation;
 
 #[tokio::main]
 async fn main() -> Result<(), ()> {

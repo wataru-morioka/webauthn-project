@@ -7,6 +7,23 @@ use once_cell::sync::Lazy;
 use std::net::IpAddr;
 use std::str::FromStr;
 use log::info;
+use async_trait::async_trait;
+use crate::service::interface::reverse_proxy::*;
+
+#[async_trait]
+impl ReverseProxyInterface for ReverseProxy {
+    async fn call(
+        client_ip: IpAddr,
+        forward_uri: &str,
+        request: Request<Body>,
+    ) -> Result<Response<Body>> {
+        let proxied_request = create_proxied_request(client_ip, &forward_uri, request).unwrap();
+        let client = Client::new();
+        let response = client.request(proxied_request).await.unwrap();
+        let proxied_response = create_proxied_response(response);
+        Ok(proxied_response)
+    }
+}
 
 pub enum ProxyError {
     InvalidUri(InvalidUri),
@@ -112,14 +129,5 @@ fn create_proxied_request<B>(
     Ok(request)
 }
 
-pub async fn call(
-    client_ip: IpAddr,
-    forward_uri: &str,
-    request: Request<Body>,
-) -> Result<Response<Body>> {
-    let proxied_request = create_proxied_request(client_ip, &forward_uri, request).unwrap();
-    let client = Client::new();
-    let response = client.request(proxied_request).await.unwrap();
-    let proxied_response = create_proxied_response(response);
-    Ok(proxied_response)
-}
+
+
