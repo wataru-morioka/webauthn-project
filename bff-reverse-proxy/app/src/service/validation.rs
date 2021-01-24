@@ -1,6 +1,7 @@
 use hyper::{Request, Body};
 use log::info;
 use async_trait::async_trait;
+use reqwest::Response;
 use crate::config::constant::Const;
 use crate::data::interface::model::SessionInfo;
 use crate::service::interface::validation::*;
@@ -32,17 +33,23 @@ impl ValidationInterface for Validation {
     async fn is_access_token_valid(session: &mut SessionInfo) -> Result<String, ValidationError> {
         let access_token = is_expiratioin_valid(session);
         if access_token.is_ok() {
-            // return access_token;
+            return access_token;
         }
-
-        info!("リフレッシュトークン使用");
 
         let params = util::create_token_params(&session);
         let res = ApiRepository::token_request(&params).await?;
 
-        info!("res: {:?}", res);
+        info!("updated access token: {}", res.access_token);
+        session.access_token = Some(res.access_token.clone());
+        session.created_timestamp = util::get_current_unix_timestamp();
 
-        access_token
+        DynamoDbRepository::put_session(
+            session,
+            Const::COGNITO_SESSION_MANAGE
+        ).await
+        .map_err(|_| ValidationError::SessionError)?;
+
+        Ok(res.access_token)
     }
 }
 

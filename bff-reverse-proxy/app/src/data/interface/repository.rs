@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use crate::data::interface::model::SessionInfo;
 use reqwest::Response;
 use crate::config::errconfig::ValidationError;
+use super::model::CognitoTokenResponse;
 
 pub struct DynamoDbRepository {}
 
@@ -16,6 +17,6 @@ pub struct ApiRepository {}
 
 #[async_trait]
 pub trait ApiInterface {
-    async fn token_request(params: &Vec<(&str, &str)>) -> Result<Response, ValidationError>;
+    async fn token_request(params: &Vec<(&str, &str)>) -> Result<CognitoTokenResponse, ValidationError>;
 }
 

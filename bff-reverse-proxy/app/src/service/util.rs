@@ -24,7 +24,7 @@ pub fn generate_basic_header() -> String {
 
 pub fn create_token_params<'a>(session: &'a SessionInfo) -> Vec<(&'a str, &'a str)> {
     let request_body = [
-        ("grant_type", "authorization_code"),
+        ("grant_type", "refresh_token"),
         ("client_id", &ENV.cognito_clientid),
         ("refresh_token", &session.refresh_token.as_ref().unwrap()),
     ];

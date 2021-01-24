@@ -10,6 +10,7 @@ use super::interface::repository::*;
 use crate::data::interface::model::SessionInfo;
 use crate::config::errconfig::ValidationError;
 use crate::config::envconfig::ENV;
+use super::interface::model::CognitoTokenResponse;
 
 #[async_trait]
 impl DynamoDbInterface for DynamoDbRepository {
@@ -76,31 +77,34 @@ impl DynamoDbInterface for DynamoDbRepository {
                 error!("セッション取得エラー: {:?}", error);
                 ()
             })
-            .and_then(|result| {
-                result.item
-                    .ok_or({
-                        error!("no session");
-                        ()
-                    })
-                    .and_then(|item| {
-                        let session: SessionInfo = serde_dynamodb::from_hashmap(item).unwrap();
-                        info!("get session!!: {}", session.session_id);
-                        info!("get code_verifier!!: {}", session.code_verifier);
-                        Ok(session)
-                    })
+            .and_then(|result| result.item.ok_or_else(|| {error!("no session"); ()}))
+            .and_then(|item| {
+                let session: SessionInfo = serde_dynamodb::from_hashmap(item).unwrap();
+                info!("get session!!: {}", session.session_id);
+                info!("get code_verifier!!: {}", session.code_verifier);
+                Ok(session)
             })
     }
 }
 
 #[async_trait]
 impl ApiInterface for ApiRepository {
-    async fn token_request(params: &Vec<(&str, &str)>) -> Result<Response, ValidationError> {
-        Client::new()
+    async fn token_request(params: &Vec<(&str, &str)>) -> Result<CognitoTokenResponse, ValidationError> {
+        let body = Client::new()
             .post(&ENV.cognito_token_endpoint)
             .basic_auth(ENV.cognito_clientid.clone(), Some(ENV.cognito_clientsecret.clone()))
             .form(params)
             .send()
             .await
-            .map_err(|_| ValidationError::AccessTokenExpireError)
+            .map_err(|_| ValidationError::TokenRequestError)?
+            .text()
+            .await
+            .map_err(|_| ValidationError::TokenRequestError)?;
+
+        info!("res body: {}", body);
+
+        let body: Result<CognitoTokenResponse, ValidationError> = serde_json::from_str(&body)
+            .map_err(|_| ValidationError::ObjectMappingError);
+        body
     }
 }

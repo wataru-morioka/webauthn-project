@@ -5,6 +5,14 @@ use hyper::{Error};
 pub enum ValidationError {
     SessionError,
     AccessTokenExpireError,
+    TokenRequestError,
+    ObjectMappingError,
+}
+
+pub enum DynamoDbError {
+    GetError,
+    PutError,
+    DeleteError,
 }
 
 pub enum ProxyError {
