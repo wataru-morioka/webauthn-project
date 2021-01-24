@@ -6,8 +6,8 @@ pub struct KeycloakTokenResponse {
     pub refresh_token:String, 
     pub id_token:String,
     pub token_type: String, 
-    pub expires_in: i32,
-    pub refresh_expires_in: i32,
+    pub expires_in: u64,
+    pub refresh_expires_in: u64,
     #[serde(rename = "not-before-policy")]
     pub not_before_policy: i32,
     pub session_state: String

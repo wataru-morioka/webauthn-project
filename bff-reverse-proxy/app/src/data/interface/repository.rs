@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use crate::data::entity::SessionInfo;
+use crate::data::interface::model::SessionInfo;
 
 pub struct DynamoDbRepository {}
 

@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { OrderBy } from "./../../../graphql-types";
+import { OrderBy } from "./../graphql-types";
 
 // ====================================================
 // GraphQL query operation: GetAllPosts

@@ -6,6 +6,6 @@ pub struct CognitoTokenResponse {
     pub refresh_token:String, 
     pub id_token:String,
     pub token_type: String, 
-    pub expires_in: i32,
+    pub expires_in: u64,
 }
 

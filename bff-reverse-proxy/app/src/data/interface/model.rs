@@ -7,7 +7,7 @@ pub struct SessionInfo {
     #[serde(rename = "AccessToken")]
     pub access_token: Option<String>,
     #[serde(rename = "TokenExpiresIn")]
-    pub token_expires_in: Option<i32>,
+    pub token_expires_in: Option<u64>,
     #[serde(rename = "RefreshToken")]
     pub refresh_token: Option<String>,
     #[serde(rename = "State")]
@@ -42,4 +42,19 @@ impl SessionInfo {
             session_expiration_timestamp
         }
     }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SessionId {
+    #[serde(rename = "SessionId")]
+    pub session_id: String,
+}
+
+#[derive(Deserialize)]
+pub struct CognitoTokenResponse {
+    pub access_token: String, 
+    pub refresh_token:String, 
+    pub id_token:String,
+    pub token_type: String, 
+    pub expires_in: u64,
 }

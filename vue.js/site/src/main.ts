@@ -13,14 +13,15 @@ import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client/core';
 const SuiVue = require('semantic-ui-vue');
 
 const link: HttpLink = new HttpLink({
-  uri: "http://localhost:8010/graphql"
+  uri: 'http://localhost:8010/graphql',
+  credentials: 'include',
 });
 
 const cache = new InMemoryCache();
 
 const apolloClient = new ApolloClient({
   link,
-  cache
+  cache,
 });
 
 Vue.config.productionTip = false;

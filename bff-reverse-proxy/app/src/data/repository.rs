@@ -4,10 +4,10 @@ use serde_dynamodb;
 use serde::{Deserialize, Serialize};
 use async_trait::async_trait;
 use log::{info, error};
-use crate::common::model::SessionId;
+use crate::data::interface::model::SessionId;
 use super::connection::DYNAMODB_CLIENT;
 use super::interface::repository::*;
-use crate::data::entity::SessionInfo;
+use crate::data::interface::model::SessionInfo;
 use super::connection;
 
 #[async_trait]
@@ -22,12 +22,15 @@ impl DynamoDbInterface for DynamoDbRepository {
             ..Default::default()
         };
 
-        if let Err(error) = DYNAMODB_CLIENT.put_item(create_serials).await {
-            println!("Error: {:?}", error);
-            return Err(());
-        };
-        info!("セッション更新");
-        Ok(())
+        DYNAMODB_CLIENT.put_item(create_serials).await
+            .map_err(|error| {
+                error!("セッション更新エラー: {:?}", error);
+                ()
+            })
+            .and_then(|session| {
+                info!("セッション更新");
+                Ok(())
+            })   
     }
 
     async fn delete_session(session_id: String, table_name: &str)  -> Result<(), ()> {
@@ -43,12 +46,15 @@ impl DynamoDbInterface for DynamoDbRepository {
             ..Default::default()
         };
     
-        if let Err(error) = DYNAMODB_CLIENT.delete_item(delete_serials).await {
-            error!("セッション削除エラー: {:?}", error);
-            return Err(());
-        };
-        info!("セッション削除");
-        Ok(())
+        DYNAMODB_CLIENT.delete_item(delete_serials).await
+            .map_err(|error| {
+                error!("セッション削除エラー: {:?}", error);
+                ()
+            })
+            .and_then(|session| {
+                info!("セッション削除");
+                Ok(())
+            }) 
     }
 
     async fn get_session(session_id: String, table_name: &str) -> Result<SessionInfo, ()> {
@@ -64,26 +70,24 @@ impl DynamoDbInterface for DynamoDbRepository {
             ..Default::default()
         };
 
-        match DYNAMODB_CLIENT.get_item(get_serials).await {
-            Ok(result) => {
-                match result.item {
-                    Some(item) => {
-                        let session: SessionInfo = serde_dynamodb::from_hashmap(item).unwrap(); 
+        DYNAMODB_CLIENT.get_item(get_serials).await
+            .map_err(|error| {
+                error!("セッション取得エラー: {:?}", error);
+                ()
+            })
+            .and_then(|result| {
+                result.item
+                    .ok_or({
+                        error!("no session");
+                        ()
+                    })
+                    .and_then(|item| {
+                        let session: SessionInfo = serde_dynamodb::from_hashmap(item).unwrap();
                         info!("get session!!: {}", session.session_id);
                         info!("get code_verifier!!: {}", session.code_verifier);
-                        return Ok(session);
-                    },
-                    None => {
-                        error!("no session");
-                        return Err(());
-                    }
-                }
-            },
-            Err(error) => {
-                error!("セッション取得エラー: {:?}", error);
-                return Err(());
-            },
-        };
+                        Ok(session)
+                    })
+            })
     }
 }
 
@@ -96,34 +100,34 @@ impl ApiInterface for ApiRepository {
         client_secret: String
     ) -> Result<T, ()>
     where T: for<'a> Deserialize<'a> {
-        let result = connection::generate_api_client()
-        .post(endpoint)
-        .basic_auth(client_id, Some(&client_secret))
-        .header("Content-Type", "application/x-www-form-urlencoded")
-        .send_form(request_body)
-        .await
-        .expect("トークンリクエストエラー")
-        .body()
-        .limit(20_000_000) 
-        .await;
+        // let result = connection::generate_api_client()
+        // .post(endpoint)
+        // .basic_auth(client_id, Some(&client_secret))
+        // .header("Content-Type", "application/x-www-form-urlencoded")
+        // .send_form(request_body)
+        // .await
+        // .expect("トークンリクエストエラー")
+        // .body()
+        // .limit(20_000_000) 
+        // .await;
 
-        match result {
-            Ok(bytes) => {
-                let body: String = bytes.iter().map(|&s| s as char).collect::<String>();
-                match serde_json::from_str(&body) {
-                    Ok(token_res) => {
-                        return Ok(token_res);
-                    },
-                    Err(err) => {
-                        error!("トーンオブジェクト変換エラー {:?}", err);
-                        return Err(());
-                    }
-                }
-            },
-            Err(_err) => {
-                error!("トークン取得エラー {:?}", _err);
-                return Err(());
-            }
-        };
+        // match result {
+        //     Ok(bytes) => {
+        //         let body: String = bytes.iter().map(|&s| s as char).collect::<String>();
+        //         match serde_json::from_str(&body) {
+        //             Ok(token_res) => {
+        //                 return Ok(token_res);
+        //             },
+        //             Err(err) => {
+        //                 error!("トーンオブジェクト変換エラー {:?}", err);
+        //                 return Err(());
+        //             }
+        //         }
+        //     },
+        //     Err(_err) => {
+        //         error!("トークン取得エラー {:?}", _err);
+        //         return Err(());
+        //     }
+        // };
     }
 }

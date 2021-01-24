@@ -1,7 +1,5 @@
 use hyper::header::{HeaderMap, HeaderValue};
-use hyper::http::header::{InvalidHeaderValue, ToStrError};
-use hyper::http::uri::InvalidUri;
-// use hyper::{Body, Client, Error, Request, Response, Uri};
+use hyper::{Body, Client, Request, Response, Uri, StatusCode};
 use hyper::*;
 use once_cell::sync::Lazy;
 use std::net::IpAddr;
@@ -9,6 +7,10 @@ use std::str::FromStr;
 use log::info;
 use async_trait::async_trait;
 use crate::service::interface::reverse_proxy::*;
+use crate::service::interface::validation::*;
+use crate::data::interface::model::SessionInfo;
+use super::util;
+use crate::config::errconfig::ValidationError;
 
 #[async_trait]
 impl ReverseProxyInterface for ReverseProxy {
@@ -17,41 +19,25 @@ impl ReverseProxyInterface for ReverseProxy {
         forward_uri: &str,
         request: Request<Body>,
     ) -> Result<Response<Body>> {
-        let proxied_request = create_proxied_request(client_ip, &forward_uri, request).unwrap();
+        let mut session: SessionInfo = match Validation::is_session_valid(&request).await {
+            Ok(session) => session,
+            Err(ValidationError) => {
+                return Ok(util::create_response(StatusCode::FORBIDDEN).unwrap())
+            }
+        };
+
+        // let access_token: String = match Validation::is_access_token_valid(&mut session).await {
+        //     Ok(access_token) => access_token,
+        //     Err(()) => {
+        //         return Ok(util::create_response(StatusCode::FORBIDDEN).unwrap())
+        //     }
+        // };
+
+        let proxied_request = create_proxied_request(client_ip, &forward_uri, request, access_token).unwrap();
         let client = Client::new();
         let response = client.request(proxied_request).await.unwrap();
         let proxied_response = create_proxied_response(response);
         Ok(proxied_response)
-    }
-}
-
-pub enum ProxyError {
-    InvalidUri(InvalidUri),
-    HyperError(Error),
-    ForwardHeaderError,
-}
-
-impl From<Error> for ProxyError {
-    fn from(err: Error) -> ProxyError {
-        ProxyError::HyperError(err)
-    }
-}
-
-impl From<InvalidUri> for ProxyError {
-    fn from(err: InvalidUri) -> ProxyError {
-        ProxyError::InvalidUri(err)
-    }
-}
-
-impl From<ToStrError> for ProxyError {
-    fn from(_err: ToStrError) -> ProxyError {
-        ProxyError::ForwardHeaderError
-    }
-}
-
-impl From<InvalidHeaderValue> for ProxyError {
-    fn from(_err: InvalidHeaderValue) -> ProxyError {
-        ProxyError::ForwardHeaderError
     }
 }
 
@@ -106,6 +92,7 @@ fn create_proxied_request<B>(
     client_ip: IpAddr,
     forward_url: &str,
     mut request: Request<B>,
+    access_token: String
 ) -> Result<Request<B>> {
     *request.headers_mut() = remove_hop_headers(request.headers());
     *request.uri_mut() = forward_uri(forward_url, &request);

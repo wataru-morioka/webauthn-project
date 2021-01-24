@@ -7,7 +7,7 @@ pub struct SessionInfo {
     #[serde(rename = "AccessToken")]
     pub access_token: Option<String>,
     #[serde(rename = "TokenExpiresIn")]
-    pub token_expires_in: Option<i32>,
+    pub token_expires_in: Option<u64>,
     #[serde(rename = "RefreshToken")]
     pub refresh_token: Option<String>,
     #[serde(rename = "State")]
