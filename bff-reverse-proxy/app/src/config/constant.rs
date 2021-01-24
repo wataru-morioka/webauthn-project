@@ -7,9 +7,3 @@ impl Const {
     pub const KEYCLOAK_SESSION_MANAGE: &'static str = "KeycloakSessionManage";
 }
 
-
-pub enum ValidationError {
-    SessionError,
-    AccessTokenExpireError,
-}
-

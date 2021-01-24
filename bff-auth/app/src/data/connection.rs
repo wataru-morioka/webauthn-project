@@ -9,6 +9,6 @@ pub static DYNAMODB_CLIENT: Lazy<DynamoDbClient> = Lazy::new(|| DynamoDbClient::
 pub fn generate_api_client() -> Client {
     let builder = SslConnector::builder(SslMethod::tls()).unwrap();
     Client::builder()
-    .connector(Connector::new().ssl(builder.build()).finish())
-    .finish()
-}
+        .connector(Connector::new().ssl(builder.build()).finish())
+        .finish()
+    }

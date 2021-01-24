@@ -480,6 +480,18 @@ spec:
           value: info
         - name: API_ENDPOINT
           value: http://backend-app-service:8080
+        - name: COGNITO_TOKEN_ENDPOINT
+          value: https://webauthn-app.auth.ap-northeast-1.amazoncognito.com/oauth2/token
+        - name: COGNITO_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: bff-secret
+              key: cognitoClientId
+        - name: COGNITO_CLIENTSECRET
+          valueFrom:
+            secretKeyRef:
+              name: bff-secret
+              key: cognitoClientSecret
         volumeMounts:
         - mountPath: /root/app
           name: bff-reverse-proxy-persistent-storage 

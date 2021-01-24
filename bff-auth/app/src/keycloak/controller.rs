@@ -25,9 +25,9 @@ async fn management_login(req: HttpRequest) -> impl Responder {
     let request_uri = KeycloakService::generate_authz_req_uri(&session.state, &code_challenge);
 
     HttpResponse::TemporaryRedirect()
-    .header(header::LOCATION, request_uri)
-    .cookie(cookie)
-    .finish()
+        .header(header::LOCATION, request_uri)
+        .cookie(cookie)
+        .finish()
 }
 
 #[get("/management/oauth2/callback")]
@@ -64,6 +64,6 @@ async fn management_oauth2_callback(req: HttpRequest, query: web::Query<Callback
     }
 
     HttpResponse::TemporaryRedirect()
-    .header(header::LOCATION, format!("{}/home", ENV.frontend_endpoint))
-    .finish()
+        .header(header::LOCATION, format!("{}/home", ENV.frontend_endpoint))
+        .finish()
 }

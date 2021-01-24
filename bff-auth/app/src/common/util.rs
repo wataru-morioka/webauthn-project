@@ -30,12 +30,12 @@ pub fn generate_code_challenge(verifier: &str) -> String {
 
 pub fn generate_cookie() -> Cookie<'static> {
     Cookie::build(Const::AUTH_COOKIE, generate_base64_url())
-    // .domain("www.rust-lang.org")
-    .path("/")
-    .max_age(Duration::seconds(Const::COOKIE_EXPIRES_IN))
-    .secure(false)
-    .http_only(true)
-    .finish()
+        // .domain("www.rust-lang.org")
+        .path("/")
+        .max_age(Duration::seconds(Const::COOKIE_EXPIRES_IN))
+        .secure(false)
+        .http_only(true)
+        .finish()
 }
 
 pub fn get_env() -> Env {
@@ -64,7 +64,7 @@ pub fn get_env() -> Env {
 
 pub fn get_current_unix_timestamp() -> u64 {
     SystemTime::now()
-    .duration_since(SystemTime::UNIX_EPOCH)
-    .unwrap()
-    .as_secs()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
 }

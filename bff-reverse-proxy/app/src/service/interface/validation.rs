@@ -8,5 +8,5 @@ pub struct Validation {}
 #[async_trait]
 pub trait ValidationInterface{
     async fn is_session_valid(req : &Request<Body>) -> Result<SessionInfo, ValidationError>;
-    async fn is_access_token_valid(session: SessionInfo) -> Result<String, ValidationError>;
+    async fn is_access_token_valid(session: &mut SessionInfo) -> Result<String, ValidationError>;
 }

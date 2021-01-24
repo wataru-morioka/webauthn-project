@@ -10,7 +10,6 @@ use crate::service::interface::reverse_proxy::*;
 use crate::service::interface::validation::*;
 use crate::data::interface::model::SessionInfo;
 use super::util;
-use crate::config::errconfig::ValidationError;
 
 #[async_trait]
 impl ReverseProxyInterface for ReverseProxy {
@@ -19,19 +18,21 @@ impl ReverseProxyInterface for ReverseProxy {
         forward_uri: &str,
         request: Request<Body>,
     ) -> Result<Response<Body>> {
+        info!("セッションチェック");
         let mut session: SessionInfo = match Validation::is_session_valid(&request).await {
             Ok(session) => session,
-            Err(ValidationError) => {
+            Err(_) => {
                 return Ok(util::create_response(StatusCode::FORBIDDEN).unwrap())
             }
         };
 
-        // let access_token: String = match Validation::is_access_token_valid(&mut session).await {
-        //     Ok(access_token) => access_token,
-        //     Err(()) => {
-        //         return Ok(util::create_response(StatusCode::FORBIDDEN).unwrap())
-        //     }
-        // };
+        info!("トークンチェック");
+        let access_token: String = match Validation::is_access_token_valid(&mut session).await {
+            Ok(access_token) => access_token,
+            Err(_) => {
+                return Ok(util::create_response(StatusCode::FORBIDDEN).unwrap())
+            }
+        };
 
         let proxied_request = create_proxied_request(client_ip, &forward_uri, request, access_token).unwrap();
         let client = Client::new();

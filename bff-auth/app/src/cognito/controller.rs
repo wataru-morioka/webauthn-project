@@ -25,9 +25,9 @@ pub async fn login(req: HttpRequest) -> impl Responder {
     let request_uri = CognitoService::generate_authz_req_uri(&session.state, &code_challenge);
 
     HttpResponse::TemporaryRedirect()
-    .header(header::LOCATION, request_uri)
-    .cookie(cookie)
-    .finish()
+        .header(header::LOCATION, request_uri)
+        .cookie(cookie)
+        .finish()
 }
 
 #[get("/oauth2/callback")]
@@ -64,7 +64,7 @@ pub async fn oauth2_callback(req: HttpRequest, query: web::Query<CallbackRequest
     }
 
     HttpResponse::TemporaryRedirect()
-    .header(header::LOCATION, format!("{}/home", ENV.frontend_endpoint))
-    .finish()
+        .header(header::LOCATION, format!("{}/home", ENV.frontend_endpoint))
+        .finish()
 }
 

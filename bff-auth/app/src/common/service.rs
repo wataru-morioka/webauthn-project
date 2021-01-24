@@ -81,8 +81,7 @@ impl CommonInterface for CommonService {
             .ok_or({
                 error!("認可コード不正");
                 ()
-            })
-            .and_then(|code| Ok(code))?;
+            })?;
         info!("get grantcode! : {}", &authorization_code);
     
         let session: SessionInfo = DynamoDbRepository::get_session(session_id, table_name).await

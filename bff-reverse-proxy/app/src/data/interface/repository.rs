@@ -1,6 +1,7 @@
 use async_trait::async_trait;
-use serde::{Deserialize, Serialize};
 use crate::data::interface::model::SessionInfo;
+use reqwest::Response;
+use crate::config::errconfig::ValidationError;
 
 pub struct DynamoDbRepository {}
 
@@ -13,14 +14,8 @@ pub trait DynamoDbInterface {
 
 pub struct ApiRepository {}
 
-#[async_trait(?Send)]
+#[async_trait]
 pub trait ApiInterface {
-    async fn token_request<T>(
-        endpoint: String, 
-        request_body: &Vec<(&str, &str)>,
-        client_id: String,
-        client_secret: String
-    ) -> Result<T, ()> 
-    where T : for<'a> Deserialize<'a>;
+    async fn token_request(params: &Vec<(&str, &str)>) -> Result<Response, ValidationError>;
 }
 

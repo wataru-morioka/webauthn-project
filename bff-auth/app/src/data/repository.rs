@@ -14,7 +14,7 @@ use super::connection;
 impl DynamoDbInterface for DynamoDbRepository {
     async fn put_session(session: &SessionInfo, table_name: &str) -> Result<(), ()> {
         let put_item: HashMap<String, AttributeValue> = serde_dynamodb::to_hashmap(session)
-        .expect("sessionオブジェクト変換エラー");
+            .expect("sessionオブジェクト変換エラー");
 
         let create_serials = PutItemInput {
             item: put_item,
@@ -97,15 +97,15 @@ impl ApiInterface for ApiRepository {
     ) -> Result<T, ()>
     where T: for<'a> Deserialize<'a> {
         let result = connection::generate_api_client()
-        .post(endpoint)
-        .basic_auth(client_id, Some(&client_secret))
-        .header("Content-Type", "application/x-www-form-urlencoded")
-        .send_form(request_body)
-        .await
-        .expect("トークンリクエストエラー")
-        .body()
-        .limit(20_000_000) 
-        .await;
+            .post(endpoint)
+            .basic_auth(client_id, Some(&client_secret))
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .send_form(request_body)
+            .await
+            .expect("トークンリクエストエラー")
+            .body()
+            .limit(20_000_000) 
+            .await;
 
         match result {
             Ok(bytes) => {
