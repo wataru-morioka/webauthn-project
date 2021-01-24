@@ -45,9 +45,6 @@ impl ReverseProxyInterface for ReverseProxy {
 fn is_hop_header(name: &str) -> bool {
     use unicase::Ascii;
 
-    // A list of the headers, using `unicase` to help us compare without
-    // worrying about the case, and `lazy_static!` to prevent reallocation
-    // of the vector.
     static HOP_HEADERS: Lazy<Vec<Ascii<&'static str>>> = Lazy::new(|| vec![
         Ascii::new("Connection"),
         Ascii::new("Keep-Alive"),
@@ -62,9 +59,6 @@ fn is_hop_header(name: &str) -> bool {
     HOP_HEADERS.iter().any(|h| h == &name)
 }
 
-/// Returns a clone of the headers without the [hop-by-hop headers].
-///
-/// [hop-by-hop headers]: http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html
 fn remove_hop_headers(headers: &HeaderMap<HeaderValue>) -> HeaderMap<HeaderValue> {
     let mut result = HeaderMap::new();
     for (k, v) in headers.iter() {
@@ -96,13 +90,14 @@ fn create_proxied_request<B>(
     access_token: String
 ) -> Result<Request<B>> {
     *request.headers_mut() = remove_hop_headers(request.headers());
+    let bearer_header = format!("Bearer: {}", access_token);
+    request.headers_mut().insert("Authorization", HeaderValue::from_str(&bearer_header).unwrap());
     *request.uri_mut() = forward_uri(forward_url, &request);
 
     info!("proxy to: {}", forward_url);
 
     let x_forwarded_for_header_name = "x-forwarded-for";
 
-    // Add forwarding information in the headers
     match request.headers_mut().entry(x_forwarded_for_header_name) {
         hyper::header::Entry::Vacant(entry) => {
             entry.insert(client_ip.to_string().parse().unwrap());
