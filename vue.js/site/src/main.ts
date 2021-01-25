@@ -55,6 +55,7 @@ firebase.initializeApp(firebaseConfig);
 //   id: 'UA-145135127-1'
 // });
 
+
 new Vue({
   el: '#app',
   setup () {

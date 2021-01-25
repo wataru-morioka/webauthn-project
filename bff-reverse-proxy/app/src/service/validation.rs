@@ -1,7 +1,6 @@
 use hyper::{Request, Body};
 use log::info;
 use async_trait::async_trait;
-use reqwest::Response;
 use crate::config::constant::Const;
 use crate::data::interface::model::SessionInfo;
 use crate::service::interface::validation::*;

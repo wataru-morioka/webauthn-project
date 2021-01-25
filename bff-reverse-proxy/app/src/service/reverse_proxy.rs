@@ -38,6 +38,7 @@ impl ReverseProxyInterface for ReverseProxy {
         let client = Client::new();
         let response = client.request(proxied_request).await.unwrap();
         let proxied_response = create_proxied_response(response);
+        info!("response status: {}", proxied_response.status());
         Ok(proxied_response)
     }
 }

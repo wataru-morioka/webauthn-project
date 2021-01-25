@@ -479,7 +479,7 @@ spec:
         - name: RUST_LOG
           value: info
         - name: API_ENDPOINT
-          value: http://backend-app-service:8080
+          value: http://backend-app-service:8000
         - name: COGNITO_TOKEN_ENDPOINT
           value: https://webauthn-app.auth.ap-northeast-1.amazoncognito.com/oauth2/token
         - name: COGNITO_CLIENTID
