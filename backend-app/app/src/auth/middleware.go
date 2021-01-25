@@ -4,34 +4,55 @@ import (
 	"log"
 	"net/http"
 	"context"
+	"strings"
+
+	"github.com/wataru-morioka/webauthn-project/backend-app/app/src/config"
 )
 
-var userCtxKey = &contextKey{"user"}
 type contextKey struct {
 	name string
 }
 
-func Middleware(message string) func(http.Handler) http.Handler {
-    return func(next http.Handler) http.Handler {
-        return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			log.Print(message)
-            accessToken := req.Header.Get("Authorization") 
-			log.Print(accessToken)
+type Middleware struct{
+	userCtxKey contextKey
+}
 
-            if IsAccessTokenValid(&accessToken) {
+func NewMiddleware() *Middleware {
+	middleware := &Middleware {
+		userCtxKey: contextKey{name: config.ContextKey,},
+	}
+	return middleware
+}
+
+func (m Middleware) VerifyAccessToken(message string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			log.Printf("validation %s", message)
+			accessToken := constractAccessToken(req)
+
+			if isAccessTokenValid(&accessToken) {
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-                return
-            }
+				return
+			}
 
-			ctx := context.WithValue(req.Context(), userCtxKey, accessToken)
+			ctx := context.WithValue(req.Context(), m.userCtxKey, accessToken)
 			req = req.WithContext(ctx)
 
-            next.ServeHTTP(w, req)
-        })
-    }
+			next.ServeHTTP(w, req)
+		})
+	}
 }
 
-func IsAccessTokenValid(token *string) bool {
-	log.Print(*token)
+func isAccessTokenValid(token *string) bool {
+	log.Printf("access token: %s", *token)
 	return true
 }
+
+func constractAccessToken(req *http.Request) string {
+	bearerHeader := req.Header.Get("Authorization") 
+	return strings.Replace(bearerHeader, "Bearer: ", "", 1)
+}
+
+
+
+

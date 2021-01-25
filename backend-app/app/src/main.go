@@ -9,6 +9,7 @@ import (
 	"github.com/wataru-morioka/webauthn-project/backend-app/app/src/graphql/generated"
 	"github.com/wataru-morioka/webauthn-project/backend-app/app/src/graphql/resolver"
 	"github.com/wataru-morioka/webauthn-project/backend-app/app/src/auth"
+	. "github.com/wataru-morioka/webauthn-project/backend-app/app/src/auth/interface"
 	"github.com/go-chi/chi"
 )
 
@@ -16,7 +17,8 @@ const defaultPort = "8080"
 
 func main() {
 	router := chi.NewRouter()
-	router.Use(auth.Middleware("add auth"))
+	var validation MiddlewareIntarface = auth.NewMiddleware()
+	router.Use(validation.VerifyAccessToken("start"))
 
 	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{}}))
 
