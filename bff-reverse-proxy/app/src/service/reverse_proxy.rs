@@ -91,7 +91,7 @@ fn create_proxied_request<B>(
     access_token: String
 ) -> Result<Request<B>> {
     *request.headers_mut() = remove_hop_headers(request.headers());
-    let bearer_header = format!("Bearer: {}", access_token);
+    let bearer_header = format!("Bearer {}", access_token);
     request.headers_mut().insert("Authorization", HeaderValue::from_str(&bearer_header).unwrap());
     *request.uri_mut() = forward_uri(forward_url, &request);
 

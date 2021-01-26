@@ -16,9 +16,18 @@ import (
 	"github.com/dgrijalva/jwt-go"
 
 	"github.com/wataru-morioka/webauthn-project/backend-app/app/src/config"
-	. "github.com/wataru-morioka/webauthn-project/backend-app/app/src/data/repository"
+	repo "github.com/wataru-morioka/webauthn-project/backend-app/app/src/data/repository"
 	. "github.com/wataru-morioka/webauthn-project/backend-app/app/src/data/interface"
 )
+
+type CongnitoUseInfo struct {
+	Sub string `json:"sub"`
+	Name string `json:"name"`
+	GivenName string `json:"given_name"`
+	FamilyName string `json:"family_name"`
+	PreferredUsername string `json:"preferred_username"`
+	Email string `json:"email"`
+}
 
 type contextKey struct {
 	name string
@@ -53,6 +62,19 @@ func (m Middleware) VerifyAccessToken(message string) func(http.Handler) http.Ha
 			}
 
 			log.Printf("get sub!: %s", uid)
+
+			var dbRepo DbRepositoryInterface = repo.NewDbRepository()
+			err = dbRepo.CreateAccount(&uid)
+			if err != nil {
+				log.Printf("データ登録エラー: %s", err)
+			}
+
+			env := config.NewEnv()
+			var apiRepo ApiRepositoryInterface = repo.NewApiRepository()
+			header := map[string]string{"Authorization": req.Header.Get("Authorization")}
+			userInfo := &CongnitoUseInfo{}
+			apiRepo.ApiRequest("GET", env.CognitoUserInfoEndpoint, userInfo, header)
+			log.Printf("ユーザ情報: %s", userInfo.Email)
 
 			user := &User {
 				uid: uid,
@@ -89,11 +111,11 @@ func isAccessTokenValid(token *string) (string, error) {
         return "", fmt.Errorf("invalid kid")
 	})
 	if err != nil {
-		return "", fmt.Errorf("jwt検証エラー: %s", err)
+		return "", fmt.Errorf("Hash処理エラー: %s", err)
 	}
 
 	if !decodedToken.Valid {
-		return "", fmt.Errorf("トークン検証エラー: %s", decodedToken)
+		return "", fmt.Errorf("jwt署名エラー: %s", decodedToken)
 	}
 
 	claims, ok := decodedToken.Claims.(jwt.MapClaims)
@@ -135,7 +157,7 @@ func isAccessTokenValid(token *string) (string, error) {
 
 func constractAccessToken(req *http.Request) string {
 	bearerHeader := req.Header.Get("Authorization") 
-	return strings.Replace(bearerHeader, "Bearer: ", "", 1)
+	return strings.Replace(bearerHeader, "Bearer ", "", 1)
 }
 
 type JWK struct {
@@ -154,8 +176,8 @@ type JWKKey struct {
 
 func getJWK(jwkURL string) (map[string]JWKKey, error) {
     jwk := &JWK{}
-	var repo ApiRepositoryInterface = ApiRepository{}
-    err := repo.ApiRequest(jwkURL, jwk)
+	var repo ApiRepositoryInterface = repo.NewApiRepository()
+    err := repo.ApiRequest("GET", jwkURL, jwk, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +208,7 @@ func convertKey(rawE string, rawN string) *rsa.PublicKey {
 		panic(err)
 	}
 	pubKey.N.SetBytes(decodedN)
-	fmt.Printf("%#v\n", *pubKey)
+	// fmt.Printf("%#v\n", *pubKey)
 	return pubKey
 }
 

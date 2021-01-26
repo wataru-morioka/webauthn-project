@@ -12,12 +12,14 @@ import (
 	"github.com/wataru-morioka/webauthn-project/backend-app/app/src/graphql/resolver"
 	"github.com/wataru-morioka/webauthn-project/backend-app/app/src/auth"
 	. "github.com/wataru-morioka/webauthn-project/backend-app/app/src/auth/interface"
-	
+	repo "github.com/wataru-morioka/webauthn-project/backend-app/app/src/data/repository"
 )
 
 const defaultPort = "8080"
 
 func main() {
+	var _  = repo.NewDbRepository()
+
 	router := chi.NewRouter()
 	var validation MiddlewareIntarface = auth.NewMiddleware()
 	router.Use(validation.VerifyAccessToken("start"))

@@ -17,7 +17,7 @@
 /queue
 /dynamodb
 /static
-# /backend-app
+/backend-app/app/src/sqlboiler.toml
 /backend-cron-job
 /backend-management
 /backend-queue-worker
