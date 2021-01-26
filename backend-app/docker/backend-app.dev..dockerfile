@@ -1,5 +1,7 @@
 FROM  golang:1.16-rc-alpine3.12
 
+COPY ./.aws /root/.aws
+
 WORKDIR /root
 RUN mkdir app
 WORKDIR /root/app

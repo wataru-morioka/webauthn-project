@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"encoding/json"
 	"time"
+    "log"
 )
 
 type ApiRepository struct {}
@@ -31,7 +32,10 @@ func (a ApiRepository) ApiRequest(
     }
     defer res.Body.Close()
 
-    // TODO response header httpステータス検証
+    if res.StatusCode != 200 {
+        log.Printf("apiリクエストエラー: %s %+v", res.StatusCode, res)
+        return err
+    }
 
     json.NewDecoder(res.Body).Decode(body)
 

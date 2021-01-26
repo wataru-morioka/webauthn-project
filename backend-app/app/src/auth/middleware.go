@@ -15,12 +15,12 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"github.com/wataru-morioka/webauthn-project/backend-app/app/src/config"
-	repo "github.com/wataru-morioka/webauthn-project/backend-app/app/src/data/repository"
+	. "github.com/wataru-morioka/webauthn-project/backend-app/app/src/config"
+	. "github.com/wataru-morioka/webauthn-project/backend-app/app/src/data/repository"
 	. "github.com/wataru-morioka/webauthn-project/backend-app/app/src/data/interface"
 )
 
-type CongnitoUseInfo struct {
+type CongnitoUserInfo struct {
 	Sub string `json:"sub"`
 	Name string `json:"name"`
 	GivenName string `json:"given_name"`
@@ -29,12 +29,22 @@ type CongnitoUseInfo struct {
 	Email string `json:"email"`
 }
 
-type contextKey struct {
-	name string
+type JWK struct {
+    Keys []JWKKey
 }
 
-type User struct {
-	uid string
+// JWKKey is json data struct for cognito jwk key
+type JWKKey struct {
+    Alg string
+    E   string
+    Kid string
+    Kty string
+    N   string
+    Use string
+}
+
+type contextKey struct {
+	name string
 }
 
 type Middleware struct{
@@ -43,41 +53,37 @@ type Middleware struct{
 
 func NewMiddleware() *Middleware {
 	middleware := &Middleware {
-		userCtxKey: contextKey{name: config.ContextKey,},
+		userCtxKey: contextKey{name: ContextKey,},
 	}
 	return middleware
 }
 
-func (m Middleware) VerifyAccessToken(message string) func(http.Handler) http.Handler {
+func (m Middleware) VerifyAccessToken() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			log.Printf("validation %s", message)
-			accessToken := constractAccessToken(req)
+			bearerHeader := req.Header.Get("Authorization")
+			accessToken := extractAccessToken(bearerHeader)
 
 			uid, err := isAccessTokenValid(&accessToken)
 			if err != nil {
-				log.Printf("トークン検証エラー: %s", err)
+				log.Printf("トークン検証エラー: %+v", err)
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return
 			}
 
 			log.Printf("get sub!: %s", uid)
 
-			var dbRepo DbRepositoryInterface = repo.NewDbRepository()
+			var dbRepo DbRepositoryInterface = NewDbRepository()
 			err = dbRepo.CreateAccount(&uid)
 			if err != nil {
-				log.Printf("データ登録エラー: %s", err)
+				log.Printf("データ登録エラー: %+v", err)
 			}
 
-			env := config.NewEnv()
-			var apiRepo ApiRepositoryInterface = repo.NewApiRepository()
-			header := map[string]string{"Authorization": req.Header.Get("Authorization")}
-			userInfo := &CongnitoUseInfo{}
-			apiRepo.ApiRequest("GET", env.CognitoUserInfoEndpoint, userInfo, header)
-			log.Printf("ユーザ情報: %s", userInfo.Email)
-
-			user := &User {
-				uid: uid,
+			user, err := getUserInfo(bearerHeader)
+			if err != nil {
+				log.Print("ユーザ情報取得エラー")
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				return
 			}
 			ctx := context.WithValue(req.Context(), m.userCtxKey, user)
 			req = req.WithContext(ctx)
@@ -87,19 +93,38 @@ func (m Middleware) VerifyAccessToken(message string) func(http.Handler) http.Ha
 	}
 }
 
+func getUserInfo(bearerHeader string) (*CongnitoUserInfo, error) {
+	env := NewEnv()
+	header := createHeader("Authorization", bearerHeader)
+	userInfo := &CongnitoUserInfo{}
+	var apiRepo ApiRepositoryInterface = NewApiRepository()
+
+	err := apiRepo.ApiRequest(GET.String(), env.CognitoUserInfoEndpoint, userInfo, header)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("ユーザ情報: %s", userInfo.Email)
+
+	return userInfo, nil
+}
+
+func createHeader(key string, value string) map[string]string {
+	return map[string]string{key: value}
+}
+
 func isAccessTokenValid(token *string) (string, error) {
 	log.Printf("access token: %s", *token)
-	env := config.NewEnv()
+	env := NewEnv()
 
 	jwks, err := getJWK(env.CognitoJwksEndpoint)
 	if err != nil {
-		return "", fmt.Errorf("jwk取得エラー: %s", err)
+		return "", fmt.Errorf("jwk取得エラー: %+v", err)
 	}
 
 	decodedToken, err := jwt.Parse(*token, func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodRSA)
 		if !ok {
-			return "", fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return "", fmt.Errorf("Unexpected signing method: %+v", token.Header["alg"])
 		}
 		if kid, ok := token.Header["kid"]; ok {
 			if kidStr, ok := kid.(string); ok {
@@ -111,11 +136,11 @@ func isAccessTokenValid(token *string) (string, error) {
         return "", fmt.Errorf("invalid kid")
 	})
 	if err != nil {
-		return "", fmt.Errorf("Hash処理エラー: %s", err)
+		return "", fmt.Errorf("Hash処理エラー: %+v", err)
 	}
 
 	if !decodedToken.Valid {
-		return "", fmt.Errorf("jwt署名エラー: %s", decodedToken)
+		return "", fmt.Errorf("jwt署名エラー: %+v", decodedToken)
 	}
 
 	claims, ok := decodedToken.Claims.(jwt.MapClaims)
@@ -155,29 +180,14 @@ func isAccessTokenValid(token *string) (string, error) {
 	return uid, nil
 }
 
-func constractAccessToken(req *http.Request) string {
-	bearerHeader := req.Header.Get("Authorization") 
+func extractAccessToken(bearerHeader string) string {
 	return strings.Replace(bearerHeader, "Bearer ", "", 1)
 }
 
-type JWK struct {
-    Keys []JWKKey
-}
-
-// JWKKey is json data struct for cognito jwk key
-type JWKKey struct {
-    Alg string
-    E   string
-    Kid string
-    Kty string
-    N   string
-    Use string
-}
-
-func getJWK(jwkURL string) (map[string]JWKKey, error) {
+func getJWK(jwksURL string) (map[string]JWKKey, error) {
     jwk := &JWK{}
-	var repo ApiRepositoryInterface = repo.NewApiRepository()
-    err := repo.ApiRequest("GET", jwkURL, jwk, nil)
+	var repo ApiRepositoryInterface = NewApiRepository()
+    err := repo.ApiRequest(GET.String(), jwksURL, jwk, nil)
 	if err != nil {
 		return nil, err
 	}

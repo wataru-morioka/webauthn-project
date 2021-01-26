@@ -19,7 +19,6 @@ import (
 var connection *sql.DB
 
 type DbRepository struct {
-	// connection *sql.DB
 }
 
 func NewDbRepository() *DbRepository {
@@ -27,12 +26,10 @@ func NewDbRepository() *DbRepository {
 	once.Do(func() {
 		createConnection()
     })
-	// return &DbRepository{connection: createConnection(),}
 	return &DbRepository{}
 }
 
 func createConnection() {
-	// var con *sql.DB
 	log.Print("コネクション生成")
 	env := config.NewEnv()
 	connection, _ = sql.Open(
@@ -65,7 +62,7 @@ func (a DbRepository) CreateAccount(uid *string) error {
 	}
 
 	if err := article.Insert(context.Background(), connection, boil.Infer()); err != nil {
-		log.Print("データ登録エラー")
+		log.Print("データ登録エラー: %+v", err)
 		return err
 	}
 

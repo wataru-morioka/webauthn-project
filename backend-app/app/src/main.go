@@ -22,7 +22,7 @@ func main() {
 
 	router := chi.NewRouter()
 	var validation MiddlewareIntarface = auth.NewMiddleware()
-	router.Use(validation.VerifyAccessToken("start"))
+	router.Use(validation.VerifyAccessToken())
 
 	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{}}))
 

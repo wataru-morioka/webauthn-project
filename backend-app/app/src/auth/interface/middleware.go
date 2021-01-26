@@ -5,5 +5,5 @@ import (
 )
 
 type MiddlewareIntarface interface {
-	VerifyAccessToken(message string) func(http.Handler) http.Handler
+	VerifyAccessToken() func(http.Handler) http.Handler
 }
