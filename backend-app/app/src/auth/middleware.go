@@ -85,6 +85,14 @@ func (m Middleware) VerifyAccessToken() func(http.Handler) http.Handler {
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return
 			}
+
+			var sqsRepo SqsRepositoryInterface = NewSqsRepository()
+			err = sqsRepo.Publish(&accessToken)
+			if err != nil {
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				return
+			}
+
 			ctx := context.WithValue(req.Context(), m.userCtxKey, user)
 			req = req.WithContext(ctx)
 

@@ -10,6 +10,7 @@ type Env struct {
 	PostrgresUser string
 	PostgresPassword string
 	PostgresDatabase string
+	QueueEndpoint string
 }
 
 func NewEnv() *Env {
@@ -24,6 +25,7 @@ func NewEnv() *Env {
 			PostrgresUser: "wataru",
 			PostgresPassword: "wataru",
 			PostgresDatabase: "webauthn",
+			QueueEndpoint: "https://sqs.ap-northeast-1.amazonaws.com/015535923632/mail-queue.fifo",
 		}
     })
     return env

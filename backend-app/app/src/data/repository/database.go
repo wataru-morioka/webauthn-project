@@ -12,7 +12,7 @@ import (
 	"github.com/volatiletech/sqlboiler/boil"
 	_ "github.com/lib/pq"
 
-	"github.com/wataru-morioka/webauthn-project/backend-app/app/src/config"
+	. "github.com/wataru-morioka/webauthn-project/backend-app/app/src/config"
 	entity "github.com/wataru-morioka/webauthn-project/backend-app/app/src/data/interface/entity"
 )
 
@@ -31,7 +31,7 @@ func NewDbRepository() *DbRepository {
 
 func createConnection() {
 	log.Print("コネクション生成")
-	env := config.NewEnv()
+	env := NewEnv()
 	connection, _ = sql.Open(
 		"postgres",
 		fmt.Sprintf("host=%s port=%d dbname=%s user=%s password=%s sslmode=disable",

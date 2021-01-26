@@ -9,3 +9,7 @@ type DbRepositoryInterface interface {
 	// UpdateAccount() error
 	// GetAccount() error
 }
+
+type SqsRepositoryInterface interface {
+	Publish(message *string) error
+}

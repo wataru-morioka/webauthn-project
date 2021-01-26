@@ -18,7 +18,8 @@ import (
 const defaultPort = "8080"
 
 func main() {
-	var _  = repo.NewDbRepository()
+	repo.NewDbRepository()
+	repo.NewSqsRepository()
 
 	router := chi.NewRouter()
 	var validation MiddlewareIntarface = auth.NewMiddleware()
