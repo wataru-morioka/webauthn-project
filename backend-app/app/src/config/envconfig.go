@@ -1,22 +1,28 @@
 package config
 
+import "sync"
+
 type Env struct {
-	cognitoClientId string
-	cognitoClientSecret string
-	postgresEndpoint string
-	postrgresUser string
-	postgresPassword string
-	postgresDatabase string
+	CognitoJwksEndpoint string
+	Issure string
+	PostgresEndpoint string
+	PostrgresUser string
+	PostgresPassword string
+	PostgresDatabase string
 }
 
-func (e Env) New() *Env {
-	env := &Env{
-		cognitoClientId: "test",
-		cognitoClientSecret: "test",
-		postgresEndpoint: "test",
-		postrgresUser: "test",
-		postgresPassword: "test",
-		postgresDatabase: "test",
-	}
-	return env
+func NewEnv() *Env {
+	var once sync.Once
+	var env *Env
+	once.Do(func() {
+        env = &Env{
+			CognitoJwksEndpoint: "https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_QiIPUCCfP/.well-known/jwks.json",
+			Issure: "https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_QiIPUCCfP",
+			PostgresEndpoint: "postgres-service:30432",
+			PostrgresUser: "wataru",
+			PostgresPassword: "wataru",
+			PostgresDatabase: "webauthn",
+		}
+    })
+    return env
 }

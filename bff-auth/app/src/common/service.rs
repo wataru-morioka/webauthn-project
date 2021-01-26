@@ -70,6 +70,9 @@ impl CommonInterface for CommonService {
             return Err(());
         }
         info!("get state!! : {}", query.state.clone().unwrap());
+
+        // TODO 
+        // aud, iss 検証
     
         Ok(session)
     }
