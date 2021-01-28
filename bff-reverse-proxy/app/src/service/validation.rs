@@ -35,8 +35,8 @@ impl ValidationInterface for Validation {
             return access_token;
         }
 
-        let params = util::create_token_params(&session);
-        let res = ApiRepository::token_request(&params).await?;
+        let params = util::create_refresh_token_request_params(&session);
+        let res = ApiRepository::refresh_token_request(&params).await?;
 
         info!("updated access token: {}", res.access_token);
         session.access_token = Some(res.access_token.clone());

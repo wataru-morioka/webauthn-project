@@ -23,24 +23,24 @@ func NewSqsRepository() *SqsRepository {
 			SharedConfigState: session.SharedConfigEnable,
 		}))
 		publisher = sqs.New(sess)
-    })
+	})
 	return &SqsRepository{}
 }
 
 func (s SqsRepository) Publish(message *string) error {
 	env := NewEnv()
 	params := &sqs.SendMessageInput{
-        MessageBody:  aws.String(*message),
-        QueueUrl:     aws.String(env.QueueEndpoint),
+		MessageBody:  aws.String(*message),
+		QueueUrl:     aws.String(env.QueueEndpoint),
 		MessageGroupId: aws.String(Project),
 		MessageDeduplicationId: aws.String(Project),
-    }
+	}
 
-    res, err := publisher.SendMessage(params)
-    if err != nil {
+	res, err := publisher.SendMessage(params)
+	if err != nil {
 		log.Printf("キュー登録エラー %+v", err)
-        return err
-    }
+		return err
+	}
 
 	log.Printf("sent to queue response: %+v", res)
 

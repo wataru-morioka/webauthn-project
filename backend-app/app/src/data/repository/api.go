@@ -39,6 +39,6 @@ func (a ApiRepository) ApiRequest(
 
     json.NewDecoder(res.Body).Decode(body)
 
-	return nil
+    return nil
 }
 

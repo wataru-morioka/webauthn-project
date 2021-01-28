@@ -17,6 +17,6 @@ pub struct ApiRepository {}
 
 #[async_trait]
 pub trait ApiInterface {
-    async fn token_request(params: &Vec<(&str, &str)>) -> Result<CognitoTokenResponse, ValidationError>;
+    async fn refresh_token_request(params: &Vec<(&str, &str)>) -> Result<CognitoTokenResponse, ValidationError>;
 }
 

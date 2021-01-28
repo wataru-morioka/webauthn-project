@@ -89,7 +89,7 @@ impl DynamoDbInterface for DynamoDbRepository {
 
 #[async_trait]
 impl ApiInterface for ApiRepository {
-    async fn token_request(params: &Vec<(&str, &str)>) -> Result<CognitoTokenResponse, ValidationError> {
+    async fn refresh_token_request(params: &Vec<(&str, &str)>) -> Result<CognitoTokenResponse, ValidationError> {
         let body = Client::new()
             .post(&ENV.cognito_token_endpoint)
             .basic_auth(ENV.cognito_clientid.clone(), Some(ENV.cognito_clientsecret.clone()))

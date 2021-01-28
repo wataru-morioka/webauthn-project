@@ -141,7 +141,7 @@ func isAccessTokenValid(token *string) (string, error) {
 				return rsaPublicKey, nil
 			}
 		}
-        return "", fmt.Errorf("invalid kid")
+		return "", fmt.Errorf("invalid kid")
 	})
 	if err != nil {
 		return "", fmt.Errorf("Hash処理エラー: %+v", err)
@@ -152,9 +152,9 @@ func isAccessTokenValid(token *string) (string, error) {
 	}
 
 	claims, ok := decodedToken.Claims.(jwt.MapClaims)
-    if !ok {
-        return "", errors.New("not found claims")
-    }
+	if !ok {
+		return "", errors.New("not found claims")
+	}
 
 	ok = claims.VerifyIssuer(env.Issure, false)
 	if !ok {
@@ -162,13 +162,13 @@ func isAccessTokenValid(token *string) (string, error) {
 	} 
 
 	tokenUseErr := func() error {
-        if tokenUse, ok := claims["token_use"].(string); ok {
+		if tokenUse, ok := claims["token_use"].(string); ok {
 			if tokenUse == "access" {
 				return nil
 			}
 		}
-        return errors.New("token_use should be access")
-    }
+		return errors.New("token_use should be access")
+	}
 	if tokenUseErr() != nil {
 		return "", tokenUseErr()
 	}
@@ -180,10 +180,10 @@ func isAccessTokenValid(token *string) (string, error) {
 
 	// TODO scope, aud 検証
 
-    uid, ok := claims["sub"].(string)
-    if !ok {
-        return "", errors.New("not found sub")
-    }
+	uid, ok := claims["sub"].(string)
+	if !ok {
+		return "", errors.New("not found sub")
+	}
 
 	return uid, nil
 }
@@ -193,18 +193,18 @@ func extractAccessToken(bearerHeader string) string {
 }
 
 func getJWK(jwksURL string) (map[string]JWKKey, error) {
-    jwk := &JWK{}
+	jwk := &JWK{}
 	var repo ApiRepositoryInterface = NewApiRepository()
-    err := repo.ApiRequest(GET.String(), jwksURL, jwk, nil)
+	err := repo.ApiRequest(GET.String(), jwksURL, jwk, nil)
 	if err != nil {
 		return nil, err
 	}
 
-    jwkMap := make(map[string]JWKKey, 0)
-    for _, jwk := range jwk.Keys {
-        jwkMap[jwk.Kid] = jwk
-    }
-    return jwkMap, nil
+	jwkMap := make(map[string]JWKKey, 0)
+	for _, jwk := range jwk.Keys {
+		jwkMap[jwk.Kid] = jwk
+	}
+	return jwkMap, nil
 }
 
 func convertKey(rawE string, rawN string) *rsa.PublicKey {

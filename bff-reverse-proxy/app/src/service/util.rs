@@ -22,7 +22,7 @@ pub fn generate_basic_header() -> String {
     base64::encode(basic)
 }
 
-pub fn create_token_params<'a>(session: &'a SessionInfo) -> Vec<(&'a str, &'a str)> {
+pub fn create_refresh_token_request_params<'a>(session: &'a SessionInfo) -> Vec<(&'a str, &'a str)> {
     let request_body = [
         ("grant_type", "refresh_token"),
         ("client_id", &ENV.cognito_clientid),

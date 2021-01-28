@@ -6,7 +6,7 @@ const (
     GET RestMethod = iota
     POST
     PUT
-	DELETE
+    DELETE
 )
 
 func (r RestMethod) String() string {
