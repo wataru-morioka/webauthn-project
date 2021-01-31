@@ -34,7 +34,7 @@ impl ReverseProxyInterface for ReverseProxy {
             }
         };
 
-        let proxied_request = create_refresh_token_request_params(client_ip, &forward_uri, request, access_token).unwrap();
+        let proxied_request = create_proxied_request(client_ip, &forward_uri, request, access_token).unwrap();
         let client = Client::new();
         let response = client.request(proxied_request).await.unwrap();
         let proxied_response = create_proxied_response(response);

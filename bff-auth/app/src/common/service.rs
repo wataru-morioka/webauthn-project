@@ -34,6 +34,7 @@ impl CommonInterface for CommonService {
 
         let now: u64 = util::get_current_unix_timestamp();
     
+        // TODO request_id
         let session = SessionInfo::new(
             cookie.value().to_string(),
             state,
