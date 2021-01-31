@@ -30,6 +30,8 @@ impl ValidationInterface for Validation {
     }
 
     async fn is_access_token_valid(session: &mut SessionInfo) -> Result<String, ValidationError> {
+        // TODO access_tokenデータ存在チェック
+
         let access_token = is_expiratioin_valid(session);
         if access_token.is_ok() {
             return access_token;
